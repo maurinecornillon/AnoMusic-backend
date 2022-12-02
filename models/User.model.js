@@ -35,6 +35,10 @@ const userSchema = new Schema(
         "not a valid email address",
       ],
     },
+    image: {
+      name: String,
+      url: String,
+    },
     password: String,
   },
 
