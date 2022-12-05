@@ -15,7 +15,8 @@ const publishSchema = new Schema(
       url: String,
     },
     genre: {
-      type: String,
+      type: [String],
+
       enum: [
         "cold-wave",
         "post-punk",
