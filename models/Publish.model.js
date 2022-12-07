@@ -24,11 +24,12 @@ const publishSchema = new Schema(
         "hip-hop",
         "rock",
         "pop",
+        "indie-pop",
         "EBM",
         "EDM",
       ],
     },
-    owner: {
+    user: {
       type: Schema.Types.ObjectId,
       ref: "User",
     },

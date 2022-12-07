@@ -7,6 +7,8 @@ const Publish = require("../models/Publish.model");
 const audioUploader = require("../config/audioUploader");
 const localUploader = require("../config/localUploader");
 
+// CREATE PUBLISH
+
 router.post(
   "/music",
   isAuthenticated,
@@ -18,10 +20,8 @@ router.post(
   audioUploader,
 
   async (req, res, next) => {
-    const { title, genre } = req.body;
+    const { title, genre, user } = req.body;
     console.log(req.files);
-    // console.log("=======", { files: req.files });
-    // console.log(req.files.cover, req.files.audio);
 
     try {
       let newPublish = await Publish.create({
@@ -35,6 +35,7 @@ router.post(
           name: req.files.audio.original_filename,
           url: req.files.audio.secure_url,
         },
+        user: req.payload.id,
       });
       res.status(201).json({ newPublish });
     } catch (error) {
@@ -42,6 +43,8 @@ router.post(
     }
   }
 );
+
+// SEE ALL PUBLISH
 
 router.get("/home", async (req, res) => {
   try {
@@ -52,17 +55,17 @@ router.get("/home", async (req, res) => {
   }
 });
 
-// router.get("/publish/:id", async (req, res) => {
-//   console.log(req.params);
-//   try {
-//     const publishToShow = await Offer.findById(req.params.id).populate({
-//       path: "owner",
-//       select: "account.username email -_id",
-//     });
-//     res.json(publishToShow);
-//   } catch (error) {
-//     res.status(400).json({ error: error.message });
-//   }
-// });
+// SEE ONE PUBLISH
+router.get("/music/:id", isAuthenticated, async (req, res) => {
+  try {
+    const id = req.params.id;
+    console.log(id);
+    const response = await Publish.findById(id).populate("user");
+
+    res.status(200).send(response);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
 
 module.exports = router;

@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/jwt.middleware");
 const User = require("../models/User.model");
+const Favorites = require("../models/Favorites.model");
 
 router.get("/me", isAuthenticated, async (req, res) => {
   try {
@@ -12,6 +13,8 @@ router.get("/me", isAuthenticated, async (req, res) => {
     res.status(400).json({ error: error.message });
   }
 });
+
+// UPDATE PROFILE
 
 router.post(
   "/updateme",
@@ -53,6 +56,26 @@ router.post(
       res.status(201).json({ userUpdate });
     } catch (error) {
       res.status(400).json({ error: error.message });
+    }
+  }
+);
+
+// FAVORITES
+
+router.post(
+  "/music/favorite/:id",
+  isAuthenticated,
+
+  async (req, res, next) => {
+    const id = req.params.id;
+    try {
+      let newFavorite = await Favorites.create({
+        publish: id,
+        user: req.payload.id,
+      });
+      res.status(201).json({ newFavorite });
+    } catch (error) {
+      next(error);
     }
   }
 );

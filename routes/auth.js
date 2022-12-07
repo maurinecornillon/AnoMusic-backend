@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const mongoose = require("mongoose");
 const isAuthenticated = require("../middlewares/jwt.middleware");
 const User = require("../models/User.model");
+const Publish = require("../models/Publish.model");
 const saltRounds = 10;
 
 /**
@@ -117,11 +118,26 @@ router.post("/login", async (req, res, next) => {
   }
 });
 
-router.get("/me", isAuthenticated, async (req, res, next) => {
-  // console.log("req payload", req.payload);
+// SEE USER AND HIS PUBLISH
 
+router.get("/me", isAuthenticated, async (req, res, next) => {
   const user = await User.findById(req.payload.id).select("-password");
+  const publication = await Publish.find({ user: user.id }, { user: 0 });
+
+  user._doc.publication = publication;
   res.status(200).json(user);
 });
+
+// DELETE PUBLISH
+
+// router.post("/delete", async (req, res, next) => {
+//   try {
+//     await Publish.findByIdAndRemove(userSession._id);
+//     await req.session.destroy();
+//     res.redirect("/");
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// });
 
 module.exports = router;
