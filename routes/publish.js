@@ -19,21 +19,21 @@ router.post(
 
   async (req, res, next) => {
     const { title, genre } = req.body;
-
-    console.log("=======", { files: req.files });
+    console.log(req.files);
+    // console.log("=======", { files: req.files });
     // console.log(req.files.cover, req.files.audio);
-    // return;
+
     try {
       let newPublish = await Publish.create({
         title: title,
-        genre: genre || "EDM",
+        genre: genre,
         cover: {
-          name: req.files.cover.originalname,
-          url: req.files.cover.path,
+          name: req.files.cover.original_filename,
+          url: req.files.cover.secure_url,
         },
         audio: {
-          name: req.files.audio.originalname,
-          url: req.files.audio.path,
+          name: req.files.audio.original_filename,
+          url: req.files.audio.secure_url,
         },
       });
       res.status(201).json({ newPublish });
@@ -42,4 +42,27 @@ router.post(
     }
   }
 );
+
+router.get("/home", async (req, res) => {
+  try {
+    const publish = await Publish.find();
+    res.json({ publish });
+  } catch (error) {
+    res.status(404).json({ error: error.message });
+  }
+});
+
+// router.get("/publish/:id", async (req, res) => {
+//   console.log(req.params);
+//   try {
+//     const publishToShow = await Offer.findById(req.params.id).populate({
+//       path: "owner",
+//       select: "account.username email -_id",
+//     });
+//     res.json(publishToShow);
+//   } catch (error) {
+//     res.status(400).json({ error: error.message });
+//   }
+// });
+
 module.exports = router;

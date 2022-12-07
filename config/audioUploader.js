@@ -2,14 +2,10 @@ const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 const fs = require("node:fs");
 
-const acceptedFiles = ["audio/mp3", "image/png", "image/jpeg", "image/jpg"];
-
 async function audioUploader(req, res, next) {
+  const reqBody = req.body;
   const { path: audioPath } = req.files.audio[0]; // file becomes available in req at this point
   const { path: coverPath } = req.files.cover[0]; // file becomes available in req at this point
-
-  const audioName = req.files.audio[0].originalname.split(".")[0];
-  const coverName = req.files.cover[0].originalname.split(".")[0];
 
   // Get the file name and extension with multer
   const storage = multer.diskStorage({
@@ -18,7 +14,6 @@ async function audioUploader(req, res, next) {
       const filename = `${new Date().getTime()}.${fileExt}`;
       cb(null, filename);
     },
-    destination: "/tmp/anomusic",
   });
 
   // Filter the file to validate if it meets the required audio extension
@@ -54,7 +49,6 @@ async function audioUploader(req, res, next) {
       api_secret: process.env.CLOUDINARY_SECRET,
     });
 
-    console.log(audioPath, audioName);
     cloudinary.uploader
       .upload(audioPath, {
         resource_type: "raw",
@@ -69,7 +63,7 @@ async function audioUploader(req, res, next) {
       .then((cover) => {
         fs.unlinkSync(coverPath);
         req.files.cover = cover;
-        console.log(req.files);
+        req.body = reqBody;
         next();
       })
       .catch((err) => {
