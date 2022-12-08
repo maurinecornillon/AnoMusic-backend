@@ -1,6 +1,6 @@
 const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
-const fs = require("node:fs");
+const fs = require("fs");
 
 async function audioUploader(req, res, next) {
   const reqBody = req.body;
