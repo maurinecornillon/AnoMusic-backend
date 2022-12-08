@@ -6,6 +6,7 @@ const User = require("../models/User.model");
 const Publish = require("../models/Publish.model");
 const audioUploader = require("../config/audioUploader");
 const localUploader = require("../config/localUploader");
+const Favorites = require("../models/Favorites.model");
 
 // CREATE PUBLISH
 
@@ -46,10 +47,20 @@ router.post(
 
 // SEE ALL PUBLISH
 
-router.get("/home", async (req, res) => {
+router.get("/home", isAuthenticated, async (req, res) => {
   try {
+    const myFavorites = await Favorites.find({ user: req.payload.id });
     const publish = await Publish.find();
-    res.json({ publish });
+    const publishObject = JSON.parse(JSON.stringify(publish));
+    for (const pub of publishObject) {
+      const foundFav = myFavorites.find(
+        (fav) => fav.publish.toString() === pub._id.toString()
+      );
+      if (foundFav) {
+        pub.isFav = true;
+      }
+    }
+    res.json({ publishObject });
   } catch (error) {
     res.status(404).json({ error: error.message });
   }
@@ -65,6 +76,19 @@ router.get("/music/:id", isAuthenticated, async (req, res) => {
     res.status(200).send(response);
   } catch (error) {
     res.status(400).json({ error: error.message });
+  }
+});
+
+// DELETE PUBLISH
+
+router.post("/delete/:id", async (req, res) => {
+  const id = req.params.id;
+
+  try {
+    Publish.findByIdAndRemove(id);
+    res.status(200);
+  } catch (error) {
+    console.log(error);
   }
 });
 

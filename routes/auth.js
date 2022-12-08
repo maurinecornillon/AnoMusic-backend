@@ -128,16 +128,4 @@ router.get("/me", isAuthenticated, async (req, res, next) => {
   res.status(200).json(user);
 });
 
-// DELETE PUBLISH
-
-// router.post("/delete", async (req, res, next) => {
-//   try {
-//     await Publish.findByIdAndRemove(userSession._id);
-//     await req.session.destroy();
-//     res.redirect("/");
-//   } catch (error) {
-//     res.status(400).json({ error: error.message });
-//   }
-// });
-
 module.exports = router;

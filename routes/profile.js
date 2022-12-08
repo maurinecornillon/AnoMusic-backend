@@ -60,24 +60,4 @@ router.post(
   }
 );
 
-// FAVORITES
-
-router.post(
-  "/music/favorite/:id",
-  isAuthenticated,
-
-  async (req, res, next) => {
-    const id = req.params.id;
-    try {
-      let newFavorite = await Favorites.create({
-        publish: id,
-        user: req.payload.id,
-      });
-      res.status(201).json({ newFavorite });
-    } catch (error) {
-      next(error);
-    }
-  }
-);
-
 module.exports = router;
