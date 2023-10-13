@@ -39,10 +39,6 @@ const userSchema = new Schema(
       name: String,
       url: String,
     },
-    // publish: {
-    //   type: Schema.Types.ObjectId,
-    //   ref: "Publish",
-    // },
     password: String,
   },
 

@@ -17,26 +17,32 @@ router.get("/getAll", isAuthenticated, async (req, res, next) => {
 });
 
 // CREATE
-
 router.post("/add/:id", isAuthenticated, async (req, res, next) => {
   try {
     const { id } = req.params;
-    const alreadyExist = await Favorites.findOne({
+
+    const checkFavoritePromise = Favorites.findOne({
       user: req.payload.id,
       publish: id,
     });
+
+    const [alreadyExist] = await Promise.all([checkFavoritePromise]);
+
     if (alreadyExist) {
       await Favorites.findByIdAndDelete(alreadyExist.id);
       return res.sendStatus(204);
+    } else {
+      const createFavoritePromise = Favorites.create({
+        user: req.payload.id,
+        publish: id,
+      });
+      const favorite = await createFavoritePromise;
+      res.status(201).json(favorite);
     }
-    const favorite = await Favorites.create({
-      user: req.payload.id,
-      publish: id,
-    });
-    res.status(201).json(favorite);
   } catch (error) {
     next(error);
   }
 });
+
 
 module.exports = router;

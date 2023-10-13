@@ -1,15 +1,17 @@
 const router = require("express").Router();
 const mongoose = require("mongoose");
-const uploader = require("../config/cloudinary");
 const isAuthenticated = require("../middlewares/jwt.middleware");
-const User = require("../models/User.model");
-const Publish = require("../models/Publish.model");
 const audioUploader = require("../config/audioUploader");
 const localUploader = require("../config/localUploader");
+i
+
+// MODELS
+const Publish = require("../models/Publish.model");
 const Favorites = require("../models/Favorites.model");
 
-// CREATE PUBLISH
 
+
+// CREATE PUBLISH
 router.post(
   "/music",
   isAuthenticated,
@@ -17,13 +19,10 @@ router.post(
     { name: "cover", maxCount: 1 },
     { name: "audio", maxCount: 1 },
   ]),
-
   audioUploader,
-
   async (req, res, next) => {
     const { title, genre, user } = req.body;
     console.log(req.files);
-
     try {
       let newPublish = await Publish.create({
         title: title,
@@ -45,8 +44,8 @@ router.post(
   }
 );
 
-// SEE ALL PUBLISH
 
+// SEE ALL PUBLISH
 router.get("/home", isAuthenticated, async (req, res) => {
   try {
     const myFavorites = await Favorites.find({ user: req.payload.id });
@@ -66,30 +65,42 @@ router.get("/home", isAuthenticated, async (req, res) => {
   }
 });
 
-// SEE ONE PUBLISH
+
+// SEE ONE PUBLISH, FOCUS
 router.get("/music/:id", isAuthenticated, async (req, res) => {
   try {
     const id = req.params.id;
-    console.log(id);
+    // Validation de l'ID
+    if (!isValidObjectId(id)) {
+      return res.status(400).json({ error: "ID invalide" });
+    }
     const response = await Publish.findById(id).populate("user");
-
+    if (!response) {
+      return res.status(404).json({ error: "Publication non trouvée" });
+    }
     res.status(200).send(response);
   } catch (error) {
-    res.status(400).json({ error: error.message });
+    console.error(error);
+    res.status(500).json({ error: "Une erreur est survenue lors de la récupération de la publication" });
   }
 });
+
+
 
 // DELETE PUBLISH
-
-router.post("/delete/:id", async (req, res) => {
+router.delete("/delete/:id", async (req, res) => {
   const id = req.params.id;
-
   try {
-    Publish.findByIdAndRemove(id);
-    res.status(200);
+    await Publish.findByIdAndRemove(id);
+    res.status(204).send();
   } catch (error) {
     console.log(error);
+    res.status(500).send("Erreur lors de la suppression de la publication.");
   }
 });
+
+
+
+
 
 module.exports = router;
